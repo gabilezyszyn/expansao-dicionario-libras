@@ -1,0 +1,47 @@
+{% extends "base.html" %}{% block title %}Administração{% endblock %}
+{% block body %}
+<h1>Administração e LGPD</h1>
+<p class="lead">Gestão de retenção e descarte de mídias revogadas ou reprovadas e trilha de auditoria.</p>
+
+<section class="card" style="border-top:5px solid var(--rose)">
+  <h2 style="margin-top:0">Vídeos com descarte agendado</h2>
+  {% if not pend %}
+    <p style="color:var(--muted)">Nenhum vídeo com descarte agendado no momento.</p>
+  {% else %}
+    <ul class="lista" style="margin-bottom:1rem">
+      {% for v in pend %}
+      <li>
+        <span><strong>Vídeo #{{ v.id }}</strong> · <span class="badge s-REPROVADA">{{ v.status }}</span></span>
+        <span style="color:var(--muted);font-size:.94rem">Descarte previsto em {{ v.descarte_em }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  <form method="post" action="/admin/descarte">
+    <button class="danger">
+      <svg class="ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      Executar descarte de vencidos
+    </button>
+  </form>
+</section>
+
+<h2>Log de auditoria (últimos 100)</h2>
+<div class="table-wrap">
+  <table>
+    <caption>Ações registradas no sistema</caption>
+    <thead>
+      <tr><th>Data</th><th>Usuário</th><th>Ação</th><th>Detalhe</th></tr>
+    </thead>
+    <tbody>
+      {% for l in logs %}
+      <tr>
+        <td>{{ l.data }}</td>
+        <td><strong>{{ l.usuario }}</strong></td>
+        <td><span class="badge">{{ l.acao }}</span></td>
+        <td>{{ l.detalhe }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

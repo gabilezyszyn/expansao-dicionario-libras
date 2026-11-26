@@ -1,0 +1,214 @@
+{% extends "base.html" %}{% block title %}{{ p.termo }}{% endblock %}
+{% macro del(url, rot) %}<form class="inline" method="post" action="{{ url }}"><button class="danger">{{ rot }}</button></form>{% endmacro %}
+{% block body %}
+
+<section class="verbete-hero">
+  <div class="verbete-topo">
+    <h1>{{ p.termo }}</h1>
+    {% if user %}
+      <span class="badge s-{{ p.status }}">
+        <span aria-hidden="true">{{ ST[p.status][0] }}</span> {{ ST[p.status][1] }}
+        {% if p.tipo_op != 'INSERCAO' %} · {{ p.tipo_op|lower }}{% endif %}
+      </span>
+    {% endif %}
+  </div>
+
+  <dl class="meta-chips">
+    <div class="meta-box">
+      <dt>Classe gramatical</dt>
+      <dd>{{ p.classe }}</dd>
+    </div>
+    <div class="meta-box">
+      <dt>Origem</dt>
+      <dd>{{ p.origem or '—' }}</dd>
+    </div>
+    <div class="meta-box">
+      <dt>Assunto</dt>
+      <dd>{{ p.assunto or '—' }}</dd>
+    </div>
+  </dl>
+
+  {% if edit %}
+  <div class="acoes">
+    <a class="btn sec" href="/palavra/{{p.id}}/editar">
+      <svg class="ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+      Editar dados da palavra
+    </a>
+    <a class="btn sec" href="/palavra/{{p.id}}/acepcao/nova">
+      <svg class="ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+      Nova acepção
+    </a>
+    <a class="btn sec" href="/palavra/{{p.id}}/variacao/nova">
+      <svg class="ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg>
+      Nova variação
+    </a>
+    {{ del('/palavra/%d/excluir'|format(p.id), 'Excluir palavra') }}
+  </div>
+  {% endif %}
+</section>
+
+<h2>
+  <svg class="ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+  Sinal e variações linguísticas
+</h2>
+
+{% if variacoes %}
+<div class="abas" role="tablist" aria-label="Variações do sinal" id="abas">
+  {% for v in variacoes %}
+  <button type="button" role="tab" id="aba{{v.id}}" aria-controls="pn{{v.id}}" aria-selected="{{ 'true' if loop.first else 'false' }}" tabindex="{{ 0 if loop.first else -1 }}">
+    {{ v.glosa }} · {{ 'Padrão' if v.tipo=='PADRAO' else v.tipo|capitalize }}{% if v.uf %} ({{ v.uf }}){% endif %}
+  </button>
+  {% endfor %}
+</div>
+
+{% for v in variacoes %}
+<section class="painel" role="tabpanel" id="pn{{v.id}}" aria-labelledby="aba{{v.id}}">
+  <div class="midia">
+    {% for vd in v.videos %}
+      <div class="midia-card">
+        <video controls preload="metadata" aria-label="Vídeo do sinal {{ v.glosa }}">
+          <source src="/midia/{{ vd.id }}">
+        </video>
+        {% if user %}
+        <div class="midia-meta">
+          <span>Sinalizante: <strong>{{ vd.sinalizante }}</strong> · status: {{ vd.status|lower }}</span>
+          {% if user.perfil in ('revisor','administrador') %}
+            <a href="/termo/{{ vd.id }}">Ver termo de consentimento</a>
+          {% endif %}
+        </div>
+        <div class="acoes">
+          {% if edit %}{{ del('/video/%d/excluir'|format(vd.id), 'Excluir vídeo') }}{% endif %}
+          {% if user.perfil == 'administrador' %}{{ del('/video/%d/revogar'|format(vd.id), 'Revogar consentimento') }}{% endif %}
+        </div>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="vazio">
+        <svg style="width:2.5rem;height:2.5rem;color:var(--primary)" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+        <strong>Esta variação ainda não tem vídeo publicado.</strong>
+        <span>Colaboradores podem enviar um vídeo sinalizado com termo de consentimento.</span>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="sinal-info">
+    <div>
+      <div class="glosa-header">
+        <p class="glosa">{{ v.glosa }}</p>
+        <span class="tipo-pill">{{ 'Padrão' if v.tipo=='PADRAO' else v.tipo|capitalize }}{% if v.uf %} — {{ v.uf }}{% endif %}</span>
+      </div>
+
+      <dl class="sinal-dl">
+        {% if v.descricao %}<dt>Descrição do sinal</dt><dd>{{ v.descricao }}</dd>{% endif %}
+        {% if v.config_mao %}<dt>Configuração de mão</dt><dd>{{ v.config_mao }}</dd>{% endif %}
+        {% if v.signwriting %}<dt>SignWriting</dt><dd><span class="signwriting-box">{{ v.signwriting }}</span></dd>{% endif %}
+        {% if v.videos %}<dt>Alternativa em texto (acessibilidade)</dt><dd>Sinal {{ v.glosa }}{% if acepcoes %}: {{ acepcoes[0].definicao }}{% endif %}</dd>{% endif %}
+      </dl>
+    </div>
+
+    {% if edit %}
+    <div class="acoes">
+      <a class="btn accent" href="/variacao/{{v.id}}/video">
+        <svg class="ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Enviar vídeo
+      </a>
+      <a class="btn sec" href="/variacao/{{v.id}}/editar">Editar variação</a>
+      {{ del('/variacao/%d/excluir'|format(v.id), 'Excluir variação') }}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endfor %}
+{% else %}
+<div class="empty-state"><p style="margin:0">Nenhuma variação cadastrada para este verbete.</p></div>
+{% endif %}
+
+<h2>
+  <svg class="ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+  Acepções e exemplos de uso
+</h2>
+
+{% if acepcoes %}
+<div class="acepcao-grid">
+  {% for a in acepcoes %}
+  <section class="acepcao-card">
+    <div>
+      <span class="acepcao-num">Acepção {{ loop.index }}</span>
+      <p class="acepcao-def">{{ a.definicao }}</p>
+      {% if a.exemplo %}
+        <div class="exemplo-box"><strong>Exemplo em Português:</strong> {{ a.exemplo }}</div>
+      {% endif %}
+      {% if a.exemplo_libras %}
+        <div class="exemplo-box exemplo-libras"><strong>Exemplo em Libras (glosa):</strong> {{ a.exemplo_libras }}</div>
+      {% endif %}
+    </div>
+    {% if edit %}
+    <div class="acoes">
+      <a class="btn sec" href="/acepcao/{{a.id}}/editar">Editar acepção</a>
+      {{ del('/acepcao/%d/excluir'|format(a.id), 'Excluir acepção') }}
+    </div>
+    {% endif %}
+  </section>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state"><p style="margin:0">Nenhuma acepção cadastrada.</p></div>
+{% endif %}
+
+{% if edit and p.status in ('RASCUNHO','AJUSTES_SOLICITADOS') %}
+<div class="card" style="border-left:6px solid var(--accent);margin-top:1.75rem">
+  <h3>Pronto para publicar?</h3>
+  <p class="lead" style="margin-bottom:.75rem">Envie o verbete para análise de um revisor antes da publicação pública.</p>
+  <form method="post" action="/palavra/{{p.id}}/enviar">
+    <button class="accent">
+      <svg class="ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      Enviar para revisão
+    </button>
+  </form>
+</div>
+{% endif %}
+
+{% if user and user.perfil == 'revisor' and p.status == 'EM_ANALISE' %}
+<h2>
+  <svg class="ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+  Painel de Revisão
+</h2>
+<form class="card form-card" method="post" action="/palavra/{{p.id}}/revisar">
+  <fieldset>
+    <legend>Decisão editorial</legend>
+    <label class="radio-option"><input type="radio" name="decisao" value="APROVAR" required>Aprovar e publicar</label>
+    <label class="radio-option"><input type="radio" name="decisao" value="AJUSTES">Solicitar ajustes</label>
+    <label class="radio-option"><input type="radio" name="decisao" value="REPROVAR">Reprovar</label>
+  </fieldset>
+  <div class="field">
+    <label for="comentario">Justificativa (obrigatória para ajustes e reprovação)</label>
+    <textarea id="comentario" name="comentario" rows="3" placeholder="Descreva os pontos observados na revisão..."></textarea>
+  </div>
+  <p style="margin-bottom:0"><button>Registrar decisão</button></p>
+</form>
+{% endif %}
+
+{% if user and revisoes %}
+<h2>
+  <svg class="ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+  Histórico de revisões
+</h2>
+<ul class="lista">
+  {% for r in revisoes %}
+  <li>
+    <span><strong>{{ r.revisor }}</strong> · <span class="badge">{{ r.decisao }}</span>{% if r.comentario %} — {{ r.comentario }}{% endif %}</span>
+    <span style="color:var(--muted);font-size:.9rem">{{ r.data }}</span>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<script>
+(function(){var abas=[].slice.call(document.querySelectorAll('[role=tab]'));if(!abas.length)return;
+function sel(a,foco){abas.forEach(function(b){var on=b===a;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1;
+document.getElementById(b.getAttribute('aria-controls')).hidden=!on});if(foco)a.focus()}
+abas.forEach(function(a,i){a.addEventListener('click',function(){sel(a)});
+a.addEventListener('keydown',function(e){var n=e.key==='ArrowRight'?i+1:e.key==='ArrowLeft'?i-1:null;
+if(n!==null){e.preventDefault();sel(abas[(n+abas.length)%abas.length],true)}})});sel(abas[0])})();
+</script>
+{% endblock %}

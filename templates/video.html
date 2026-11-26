@@ -1,0 +1,35 @@
+{% extends "base.html" %}{% block title %}Enviar vídeo{% endblock %}
+{% block body %}
+<h1>Enviar vídeo — {{ s.glosa }}</h1>
+<p class="lead">Verbete: <strong>{{ p.termo }}</strong>. O vídeo permanece em quarentena até a aprovação por um revisor (LGPD).</p>
+
+<form class="card form-card" method="post" enctype="multipart/form-data">
+  <div class="field" style="margin-top:0">
+    <label for="arquivo">Vídeo do sinal (MP4 ou WebM, até 50 MB) <span class="req-tag">Obrigatório</span></label>
+    <input id="arquivo" name="arquivo" type="file" accept=".mp4,.webm" required>
+  </div>
+  <div class="field">
+    <label for="sinalizante">Nome completo do sinalizante <span class="req-tag">Obrigatório</span></label>
+    <input id="sinalizante" name="sinalizante" value="{{ v.sinalizante or '' }}" required>
+  </div>
+  <div class="field">
+    <label for="nascimento">Data de nascimento do sinalizante <span class="req-tag">Obrigatório</span></label>
+    <input id="nascimento" name="nascimento" type="date" value="{{ v.nascimento or '' }}" required>
+  </div>
+  <div class="field">
+    <label for="responsavel">Responsável legal (obrigatório para menores de 18 anos)</label>
+    <input id="responsavel" name="responsavel" value="{{ v.responsavel or '' }}" placeholder="Nome do pai, mãe ou tutor legal">
+  </div>
+  <div class="field">
+    <label for="termo">Termo de autorização de imagem assinado (PDF ou imagem) <span class="req-tag">Obrigatório</span></label>
+    <input id="termo" name="termo" type="file" required>
+  </div>
+  <div class="acoes" style="margin-top:1.4rem">
+    <button class="accent" type="submit">
+      <svg class="ico" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Enviar vídeo
+    </button>
+    <a class="btn sec" href="/palavra/{{ p.id }}">Voltar ao verbete</a>
+  </div>
+</form>
+{% endblock %}

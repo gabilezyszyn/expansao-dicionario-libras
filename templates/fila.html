@@ -1,0 +1,24 @@
+{% extends "base.html" %}{% block title %}Fila de revisão{% endblock %}
+{% block body %}
+<h1>Fila de revisão</h1>
+<p class="lead">Submissões aguardando validação linguística e conferência do termo de consentimento.</p>
+
+{% if not rows %}
+  <div class="empty-state">
+    <p style="font-weight:700;color:var(--text);margin-top:0">Tudo em dia!</p>
+    <p style="margin-bottom:0">Não há submissões aguardando análise no momento.</p>
+  </div>
+{% endif %}
+
+<ul class="lista">
+  {% for r in rows %}
+  <li>
+    <div>
+      <a href="/palavra/{{r.id}}">{{ r.termo }}</a>
+      <span class="badge s-EM_ANALISE" style="margin-left:.5rem">{{ r.tipo_op }}</span>
+    </div>
+    <span style="color:var(--muted);font-size:.94rem">Enviado por <strong>{{ r.autor }}</strong> em {{ r.enviado_em }}</span>
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}
