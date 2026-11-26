@@ -10,11 +10,11 @@ Prototipo do trabalho final: CRUD de palavras, acepcoes, variacoes linguisticas,
 
 ```bash
 
-pip install -r requirements.txt  # instala o flask
+pip install -r requirements.txt           # instala o flask
 
-python app.py                    # abre em http://127.0.0.1:5000
+python app.py                             # abre em http://127.0.0.1:5000
 
-python -m unittest discover -s tests -v  # pra rodar testes
+python -m unittest discover -s tests -v   # pra rodar testes
 
 ```
 
