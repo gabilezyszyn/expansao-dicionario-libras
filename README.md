@@ -8,9 +8,15 @@ Prototipo do trabalho final: CRUD de palavras, acepcoes, variacoes linguisticas,
 
 
 
-pip install -r requirements.txt                           #instala o flask
-python app.py        # abre em http://127.0.0.1:5000
-python -m unittest discover -s tests -v                   #pra rodar testes
+```bash
+
+pip install -r requirements.txt  # instala o flask
+
+python app.py                    # abre em http://127.0.0.1:5000
+
+python -m unittest discover -s tests -v  # pra rodar testes
+
+```
 
 
 
