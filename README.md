@@ -1,8 +1,10 @@
 # Dicionario de Libras — expansao (AMS)
 
+
+
 Prototipo do trabalho final: CRUD de palavras, acepcoes, variacoes linguisticas, upload de video com consentimento e fluxo de aprovacao.
 
-**Equipe:** Luis Fernando Fabricante, Gabriela Alves Ilezyszyn, Arthur Ari Lemke
+
 
 ## Como executar
 
